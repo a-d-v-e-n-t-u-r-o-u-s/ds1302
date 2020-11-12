@@ -212,13 +212,31 @@ static uint8_t read(uint8_t reg)
     return ret;
 }
 
-void DS1302_set(DS1302_datetime_t *config)
+void DS1302_get(DS1302_datetime_t *config)
 {
     if(config != NULL)
     {
-        write(WRITE_SECONDS, get_value_to_store(DS1302_SECONDS, config->secs));
-        write(WRITE_MINUTES, get_value_to_store(DS1302_MINUTES, config->min));
+        config->year = get_value_to_load(DS1302_YEAR, read(READ_YEAR));
+        config->month = get_value_to_load(DS1302_MONTH, read(READ_MONTH));
+        config->date = get_value_to_load(DS1302_DATE, read(READ_DATE));
+        config->weekday = get_value_to_load(DS1302_WEEKDAY, read(READ_WEEKDAY));
+        config->hours = get_value_to_load(DS1302_HOURS, read(READ_HOURS));
+        config->min = get_value_to_load(DS1302_MINUTES, read(READ_MINUTES));
+        config->secs = get_value_to_load(DS1302_SECONDS, read(READ_SECONDS));
+    }
+}
+
+void DS1302_set(const DS1302_datetime_t *config)
+{
+    if(config != NULL)
+    {
+        write(WRITE_YEAR, get_value_to_store(DS1302_YEAR, config->year));
+        write(WRITE_MONTH, get_value_to_store(DS1302_MONTH, config->month));
+        write(WRITE_DATE, get_value_to_store(DS1302_DATE, config->date));
+        write(WRITE_WEEKDAY, get_value_to_store(DS1302_WEEKDAY, config->weekday));
         write(WRITE_HOURS, get_value_to_store(DS1302_HOURS, config->hours));
+        write(WRITE_MINUTES, get_value_to_store(DS1302_MINUTES, config->min));
+        write(WRITE_SECONDS, get_value_to_store(DS1302_SECONDS, config->secs));
     }
 }
 
