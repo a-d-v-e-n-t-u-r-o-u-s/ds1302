@@ -21,11 +21,14 @@
  *
  */
 
+#define DEBUG_APP_ID "DS13"
+
 #include "ds1302.h"
 #include "gpio.h"
 #include <util/delay.h>
 #include <stddef.h>
 #include <string.h>
+#include "debug.h"
 
 #define READ_SECONDS            (0x81)
 #define WRITE_SECONDS           (0x80)
@@ -41,6 +44,7 @@
 
 #define READ_MONTH              (0x89)
 #define WRITE_MONTH             (0x88)
+
 
 #define READ_WEEKDAY            (0x8B)
 #define WRITE_WEEKDAY           (0x8A)
@@ -280,12 +284,9 @@ void DS1302_set_write_protection(bool val)
 }
 
 
-int8_t DS1302_configure(const DS1302_config_t *config)
+void DS1302_configure(const DS1302_config_t *config)
 {
-    if(config == NULL)
-    {
-        return -1;
-    }
+    ASSERT(config != NULL);
 
     memcpy(pins, config->pins, sizeof(config->pins));
 
@@ -294,6 +295,4 @@ int8_t DS1302_configure(const DS1302_config_t *config)
         GPIO_config_pin(pins[i][0], pins[i][1], GPIO_OUTPUT_PUSH_PULL);
         GPIO_write_pin(pins[i][0], pins[i][1], 0U);
     }
-
-    return 0;
 }
