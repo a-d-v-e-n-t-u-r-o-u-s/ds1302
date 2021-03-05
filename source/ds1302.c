@@ -22,6 +22,8 @@
  */
 
 #define DEBUG_APP_ID "DS13"
+#define DEBUG_ENABLED   DEBUG_DS1302_ENABLED
+#define DEBUG_LEVEL     DEBUG_DS1302_LEVEL
 
 #include "ds1302.h"
 #include "gpio.h"
