@@ -26,6 +26,7 @@
 #define DEBUG_LEVEL     DEBUG_DS1302_LEVEL
 
 #include "ds1302.h"
+#include "hardware.h"
 #include "gpio.h"
 #include <util/delay.h>
 #include <stddef.h>
