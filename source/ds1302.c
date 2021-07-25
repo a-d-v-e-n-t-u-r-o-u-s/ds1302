@@ -79,16 +79,15 @@ static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
         case DS1302_SECONDS:
         case DS1302_MINUTES:
         case DS1302_HOURS:
-            return ((((val/10u) << 4u) & 0x70u) | (val % 10U));
-            break;
+            return ((((val / 10u) << 4u) & 0x70u) | (val % 10u));
         case DS1302_WEEKDAY:
             return (val &= 0x03);
         case DS1302_DATE:
-            return  (((val / 10) << 4) & 0x30) | (val % 10);
+            return (((val / 10u) << 4u) & 0x30u) | (val % 10u);
         case DS1302_MONTH:
-            return (((val / 10) << 4) & 0x10) | (val % 10);
+            return (((val / 10u) << 4u) & 0x10u) | (val % 10u);
         case DS1302_YEAR:
-            return (((val / 10) << 4) & 0xF0) | (val % 10);
+            return (((val / 10u) << 4u) & 0xF0u) | (val % 10u);
         case DS1302_FORMAT:
             break;
     }
@@ -103,15 +102,15 @@ static uint8_t get_value_to_load(DS1302_entry_t entry, uint8_t val)
         case DS1302_SECONDS:
         case DS1302_MINUTES:
         case DS1302_HOURS:
-            return (val & 0x0F) + ((val & 0x70) >> 4) * 10;
+            return (val & 0x0Fu) + ((val & 0x70u) >> 4u) * 10u;
         case DS1302_WEEKDAY:
-            return (val &= 0x07);
+            return (val &= 0x07u);
         case DS1302_DATE:
-            return (val & 0x0F) + ((val & 0x30) >> 4) * 10;
+            return (val & 0x0Fu) + ((val & 0x30u) >> 4u) * 10u;
         case DS1302_MONTH:
-            return (val & 0x0F) + ((val & 0x10) >> 4) * 10;
+            return (val & 0x0Fu) + ((val & 0x10u) >> 4u) * 10u;
         case DS1302_YEAR:
-            return (val & 0x0F) + ((val & 0xF0) >> 4) * 10;
+            return (val & 0x0Fu) + ((val & 0xF0u) >> 4u) * 10u;
         case DS1302_FORMAT:
             break;
     }
