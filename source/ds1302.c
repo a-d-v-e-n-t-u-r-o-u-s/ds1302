@@ -87,7 +87,10 @@ static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
         case DS1302_YEAR:
             return (((val / 10u) << 4u) & 0xF0u) | (val % 10u);
         case DS1302_FORMAT:
+        default:
+            ASSERT(false);
             break;
+
     }
 
     return 0;
@@ -110,6 +113,8 @@ static uint8_t get_value_to_load(DS1302_entry_t entry, uint8_t val)
         case DS1302_YEAR:
             return (val & 0x0Fu) + ((val & 0xF0u) >> 4u) * 10u;
         case DS1302_FORMAT:
+        default:
+            ASSERT(false);
             break;
     }
 
@@ -269,4 +274,5 @@ void DS1302_set_write_protection(bool val)
 
 void DS1302_configure(void)
 {
+    /* is going to be implemented later */
 }

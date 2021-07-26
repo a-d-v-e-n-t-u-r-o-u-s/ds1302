@@ -35,10 +35,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define DS1302_CLK_IDX              (0U)
-#define DS1302_IO_IDX               (1U)
-#define DS1302_CE_IDX               (2U)
-
 typedef struct
 {
     uint8_t secs;
