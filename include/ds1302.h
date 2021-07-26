@@ -41,11 +41,6 @@
 
 typedef struct
 {
-    uint8_t pins[3][2];
-} DS1302_config_t;
-
-typedef struct
-{
     uint8_t secs;
     uint8_t min;
     uint8_t hours;
@@ -62,7 +57,7 @@ uint8_t DS1302_get_hours(void);
 void DS1302_set_write_protection(bool val);
 void DS1302_get(DS1302_datetime_t *config);
 void DS1302_set(const DS1302_datetime_t *config);
-void DS1302_configure(const DS1302_config_t *config);
+void DS1302_configure(void);
 
 /*@}*/
 #endif

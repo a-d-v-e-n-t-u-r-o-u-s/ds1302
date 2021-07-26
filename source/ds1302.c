@@ -70,8 +70,6 @@ typedef enum
     DS1302_FORMAT,
 } DS1302_entry_t;
 
-static uint8_t pins[3][2];
-
 static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
 {
     switch(entry)
@@ -120,48 +118,35 @@ static uint8_t get_value_to_load(DS1302_entry_t entry, uint8_t val)
 
 static inline void stop(void)
 {
-    const uint8_t ce_port = pins[DS1302_CE_IDX][0];
-    const uint8_t ce_pin = pins[DS1302_CE_IDX][1];
-    const uint8_t clk_port = pins[DS1302_CLK_IDX][0];
-    const uint8_t clk_pin = pins[DS1302_CLK_IDX][1];
-
-    GPIO_write_pin(ce_port, ce_pin, 0U);
-    GPIO_write_pin(clk_port, clk_pin, 0U);
+    GPIO_write_pin(GPIO_CHANNEL_RTC_CE, false);
+    GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
 }
 
 static inline void reset(void)
 {
-    const uint8_t ce_port = pins[DS1302_CE_IDX][0];
-    const uint8_t ce_pin = pins[DS1302_CE_IDX][1];
-
     stop();
 
-    GPIO_write_pin(ce_port, ce_pin, 1U);
+    GPIO_write_pin(GPIO_CHANNEL_RTC_CE, true);
 }
 
 static void write_byte(uint8_t data)
 {
-    const uint8_t io_port = pins[DS1302_IO_IDX][0];
-    const uint8_t io_pin = pins[DS1302_IO_IDX][1];
-    const uint8_t clk_port = pins[DS1302_CLK_IDX][0];
-    const uint8_t clk_pin = pins[DS1302_CLK_IDX][1];
-
-    GPIO_config_pin(io_port, io_pin, GPIO_OUTPUT_PUSH_PULL);
+    GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_OUTPUT_PUSH_PULL);
 
     for(uint8_t i = 0u; i < 8U; i++)
     {
         if((data & 0x01) != 0U)
         {
-            GPIO_write_pin(io_port, io_pin, 1U);
+            GPIO_write_pin(GPIO_CHANNEL_RTC_IO, true);
         }
         else
         {
-            GPIO_write_pin(io_port, io_pin, 0U);
+            GPIO_write_pin(GPIO_CHANNEL_RTC_IO, false);
         }
 
-        GPIO_write_pin(clk_port, clk_pin, 0U);
+        GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
         _delay_us(2);
-        GPIO_write_pin(clk_port, clk_pin, 1U);
+        GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
         _delay_us(2);
 
         data >>= 1U;
@@ -171,23 +156,19 @@ static void write_byte(uint8_t data)
 static uint8_t read_byte(void)
 {
     uint8_t ret = 0;
-    const uint8_t io_port = pins[DS1302_IO_IDX][0];
-    const uint8_t io_pin = pins[DS1302_IO_IDX][1];
-    const uint8_t clk_port = pins[DS1302_CLK_IDX][0];
-    const uint8_t clk_pin = pins[DS1302_CLK_IDX][1];
 
-    GPIO_config_pin(io_port, io_pin, GPIO_INPUT_FLOATING);
+    GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_INPUT_FLOATING);
 
     for(uint8_t i = 0U; i < 8U; i++)
     {
-        GPIO_write_pin(clk_port, clk_pin, 1U);
+        GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
         _delay_us(2);
-        GPIO_write_pin(clk_port, clk_pin, 0U);
+        GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
         _delay_us(2);
 
         ret >>= 1U;
 
-        if(GPIO_read_pin(io_port, io_pin))
+        if(GPIO_read_pin(GPIO_CHANNEL_RTC_IO))
         {
             ret |= (1U << 7U);
         }
@@ -286,15 +267,6 @@ void DS1302_set_write_protection(bool val)
 }
 
 
-void DS1302_configure(const DS1302_config_t *config)
+void DS1302_configure(void)
 {
-    ASSERT(config != NULL);
-
-    memcpy(pins, config->pins, sizeof(config->pins));
-
-    for(uint8_t i = 0; i < 3u; i++)
-    {
-        GPIO_config_pin(pins[i][0], pins[i][1], GPIO_OUTPUT_PUSH_PULL);
-        GPIO_write_pin(pins[i][0], pins[i][1], 0U);
-    }
 }
