@@ -64,7 +64,7 @@ typedef struct
     uint8_t max;
 } DS1302_range_t;
 
-static const DS1302_range_t ranges[] PROGMEM =
+static const DS1302_range_t ranges[7] PROGMEM =
 {
     [DS1302_SECONDS]    = { .min = 0u, .max = 59u },
     [DS1302_MINUTES]    = { .min = 0u, .max = 59u },
@@ -101,7 +101,7 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
         case DS1302_HOURS:
             return ((((val / 10u) << 4u) & 0x70u) | (val % 10u));
         case DS1302_WEEKDAY:
-            return (val &= 0x03);
+            return (val = 0x07u);
         case DS1302_DATE:
             return (((val / 10u) << 4u) & 0x30u) | (val % 10u);
         case DS1302_MONTH:
@@ -126,7 +126,7 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
         case DS1302_HOURS:
             return (val & 0x0Fu) + ((val & 0x70u) >> 4u) * 10u;
         case DS1302_WEEKDAY:
-            return (val &= 0x07u);
+            return (val & 0x07u);
         case DS1302_DATE:
             return (val & 0x0Fu) + ((val & 0x30u) >> 4u) * 10u;
         case DS1302_MONTH:
@@ -156,11 +156,12 @@ static inline void reset(void)
 
 static void write_byte(uint8_t data)
 {
+    uint8_t tmp = data;
     GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_OUTPUT_PUSH_PULL);
 
     for(uint8_t i = 0u; i < 8U; i++)
     {
-        if((data & 0x01) != 0U)
+        if((tmp & 0x01) != 0U)
         {
             GPIO_write_pin(GPIO_CHANNEL_RTC_IO, true);
         }
@@ -174,7 +175,7 @@ static void write_byte(uint8_t data)
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
         _delay_us(2);
 
-        data >>= 1U;
+        tmp >>= 1U;
     }
 }
 
