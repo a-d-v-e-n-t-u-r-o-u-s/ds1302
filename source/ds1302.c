@@ -58,19 +58,41 @@
 #define READ_WP                 (0x8F)
 #define WRITE_WP                (0x8E)
 
-typedef enum
+typedef struct
 {
-    DS1302_SECONDS,
-    DS1302_MINUTES,
-    DS1302_HOURS,
-    DS1302_WEEKDAY,
-    DS1302_DATE,
-    DS1302_MONTH,
-    DS1302_YEAR,
-    DS1302_FORMAT,
-} DS1302_entry_t;
+    uint8_t min;
+    uint8_t max;
+} DS1302_range_t;
 
-static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
+static const DS1302_range_t ranges[] PROGMEM =
+{
+    [DS1302_SECONDS]    = { .min = 0u, .max = 59u },
+    [DS1302_MINUTES]    = { .min = 0u, .max = 59u },
+    [DS1302_HOURS]      = { .min = 0u, .max = 23u },
+    [DS1302_WEEKDAY]    = { .min = 1u, .max = 7u  },
+    [DS1302_DATE]       = { .min = 1u, .max = 31u },
+    [DS1302_MONTH]      = { .min = 1u, .max = 12u },
+    [DS1302_YEAR]       = { .min = 0u, .max = 99u }
+};
+
+static bool is_type_valid(uint8_t type)
+{
+    switch(type)
+    {
+        case DS1302_SECONDS:
+        case DS1302_MINUTES:
+        case DS1302_HOURS:
+        case DS1302_WEEKDAY:
+        case DS1302_DATE:
+        case DS1302_MONTH:
+        case DS1302_YEAR:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
 {
     switch(entry)
     {
@@ -86,7 +108,6 @@ static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
             return (((val / 10u) << 4u) & 0x10u) | (val % 10u);
         case DS1302_YEAR:
             return (((val / 10u) << 4u) & 0xF0u) | (val % 10u);
-        case DS1302_FORMAT:
         default:
             ASSERT(false);
             break;
@@ -96,7 +117,7 @@ static uint8_t get_value_to_store(DS1302_entry_t entry, uint8_t val)
     return 0;
 }
 
-static uint8_t get_value_to_load(DS1302_entry_t entry, uint8_t val)
+static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
 {
     switch(entry)
     {
@@ -112,7 +133,6 @@ static uint8_t get_value_to_load(DS1302_entry_t entry, uint8_t val)
             return (val & 0x0Fu) + ((val & 0x10u) >> 4u) * 10u;
         case DS1302_YEAR:
             return (val & 0x0Fu) + ((val & 0xF0u) >> 4u) * 10u;
-        case DS1302_FORMAT:
         default:
             ASSERT(false);
             break;
@@ -257,6 +277,30 @@ uint8_t DS1302_get_hours(void)
     ret = get_value_to_load(DS1302_HOURS, ret);
 
     return ret;
+}
+
+uint8_t DS1302_get_range_minimum(uint8_t type)
+{
+    if(is_type_valid(type))
+    {
+        return pgm_read_byte(&ranges[type].min);
+    }
+    else
+    {
+        return 0u;
+    }
+}
+
+uint8_t DS1302_get_range_maximum(uint8_t type)
+{
+    if(is_type_valid(type))
+    {
+        return pgm_read_byte(&ranges[type].max);
+    }
+    else
+    {
+        return 0u;
+    }
 }
 
 void DS1302_set_write_protection(bool val)

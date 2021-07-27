@@ -35,6 +35,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DS1302_SECONDS          (0u)
+#define DS1302_MINUTES          (1u)
+#define DS1302_HOURS            (2u)
+#define DS1302_WEEKDAY          (3u)
+#define DS1302_DATE             (4u)
+#define DS1302_MONTH            (5u)
+#define DS1302_YEAR             (6u)
+
 typedef struct
 {
     uint8_t secs;
@@ -50,6 +58,8 @@ typedef struct
 uint8_t DS1302_get_seconds(void);
 uint8_t DS1302_get_minutes(void);
 uint8_t DS1302_get_hours(void);
+uint8_t DS1302_get_range_minimum(uint8_t type);
+uint8_t DS1302_get_range_maximum(uint8_t type);
 void DS1302_set_write_protection(bool val);
 void DS1302_get(DS1302_datetime_t *config);
 void DS1302_set(const DS1302_datetime_t *config);
