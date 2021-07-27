@@ -101,7 +101,7 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
         case DS1302_HOURS:
             return ((((val / 10u) << 4u) & 0x70u) | (val % 10u));
         case DS1302_WEEKDAY:
-            return (val = 0x07u);
+            return (val & 0x07u);
         case DS1302_DATE:
             return (((val / 10u) << 4u) & 0x30u) | (val % 10u);
         case DS1302_MONTH:
