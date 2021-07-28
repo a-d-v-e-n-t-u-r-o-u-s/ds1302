@@ -58,6 +58,20 @@
 #define READ_WP                 (0x8F)
 #define WRITE_WP                (0x8E)
 
+#define HOURS_UNIT_MASK         (0x1Fu)
+#define WEEKDAY_UNIT_MASK       (0x07u)
+#define OTHER_UNIT_MASK         (0x0Fu)
+
+#define SEC_MIN_TENS_MASK       (0x70u)
+#define DATE_TENS_MASK          (0x30u)
+#define MONTH_TENS_MASK         (0x10u)
+#define YEAR_TENS_MASK          (0xF0u)
+
+#define TENS_SHIFT              (4u)
+
+#define UNIT_FACTOR             (1u)
+#define TENS_FACTOR             (10u)
+
 typedef struct
 {
     uint8_t min;
@@ -98,16 +112,21 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
     {
         case DS1302_SECONDS:
         case DS1302_MINUTES:
+            return ((((val / TENS_FACTOR) << TENS_SHIFT) & SEC_MIN_TENS_MASK) |
+                    (val % TENS_FACTOR));
         case DS1302_HOURS:
-            return ((((val / 10u) << 4u) & 0x70u) | (val % 10u));
+            return (val & HOURS_UNIT_MASK);
         case DS1302_WEEKDAY:
-            return (val & 0x07u);
+            return (val & WEEKDAY_UNIT_MASK);
         case DS1302_DATE:
-            return (((val / 10u) << 4u) & 0x30u) | (val % 10u);
+            return (((val / TENS_FACTOR) << TENS_SHIFT) & DATE_TENS_MASK) |
+                (val % TENS_FACTOR);
         case DS1302_MONTH:
-            return (((val / 10u) << 4u) & 0x10u) | (val % 10u);
+            return (((val / TENS_FACTOR) << TENS_SHIFT) & MONTH_TENS_MASK) |
+                (val % TENS_FACTOR);
         case DS1302_YEAR:
-            return (((val / 10u) << 4u) & 0xF0u) | (val % 10u);
+            return (((val / TENS_FACTOR) << TENS_SHIFT) & YEAR_TENS_MASK) |
+                (val % TENS_FACTOR);
         default:
             ASSERT(false);
             break;
@@ -123,16 +142,21 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
     {
         case DS1302_SECONDS:
         case DS1302_MINUTES:
+            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
+                ((val & SEC_MIN_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         case DS1302_HOURS:
-            return (val & 0x0Fu) + ((val & 0x70u) >> 4u) * 10u;
+            return (val & HOURS_UNIT_MASK)*UNIT_FACTOR;;
         case DS1302_WEEKDAY:
-            return (val & 0x07u);
+            return (val & WEEKDAY_UNIT_MASK)*UNIT_FACTOR;
         case DS1302_DATE:
-            return (val & 0x0Fu) + ((val & 0x30u) >> 4u) * 10u;
+            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
+                ((val & DATE_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         case DS1302_MONTH:
-            return (val & 0x0Fu) + ((val & 0x10u) >> 4u) * 10u;
+            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
+                ((val & MONTH_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         case DS1302_YEAR:
-            return (val & 0x0Fu) + ((val & 0xF0u) >> 4u) * 10u;
+            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
+                ((val & YEAR_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         default:
             ASSERT(false);
             break;
