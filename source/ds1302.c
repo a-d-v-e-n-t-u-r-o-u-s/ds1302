@@ -31,6 +31,7 @@
 #include <util/delay.h>
 #include <stddef.h>
 #include <string.h>
+#include <limits.h>
 #include "debug.h"
 
 #define READ_SECONDS            (0x81)
@@ -58,6 +59,7 @@
 #define READ_WP                 (0x8F)
 #define WRITE_WP                (0x8E)
 
+#define WRITE_PROTECTION_MASK   (0x80u)
 #define HOURS_UNIT_MASK         (0x1Fu)
 #define WEEKDAY_UNIT_MASK       (0x07u)
 #define OTHER_UNIT_MASK         (0x0Fu)
@@ -71,6 +73,9 @@
 
 #define UNIT_FACTOR             (1u)
 #define TENS_FACTOR             (10u)
+
+#define CLK_DELAY               (2u)
+#define MSB_SHIFT               (7u)
 
 typedef struct
 {
@@ -183,7 +188,7 @@ static void write_byte(uint8_t data)
     uint8_t tmp = data;
     GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_OUTPUT_PUSH_PULL);
 
-    for(uint8_t i = 0u; i < 8U; i++)
+    for(uint8_t i = 0u; i < CHAR_BIT; i++)
     {
         if((tmp & 0x01) != 0U)
         {
@@ -195,9 +200,9 @@ static void write_byte(uint8_t data)
         }
 
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
-        _delay_us(2);
+        _delay_us(CLK_DELAY);
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
-        _delay_us(2);
+        _delay_us(CLK_DELAY);
 
         tmp >>= 1U;
     }
@@ -212,15 +217,15 @@ static uint8_t read_byte(void)
     for(uint8_t i = 0U; i < 8U; i++)
     {
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
-        _delay_us(2);
+        _delay_us(CLK_DELAY);
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
-        _delay_us(2);
+        _delay_us(CLK_DELAY);
 
         ret >>= 1U;
 
         if(GPIO_read_pin(GPIO_CHANNEL_RTC_IO))
         {
-            ret |= (1U << 7U);
+            ret |= (1U << MSB_SHIFT);
         }
     }
 
@@ -332,7 +337,7 @@ void DS1302_set_write_protection(bool val)
 {
     if(val)
     {
-        write(WRITE_WP, 1U << 7U);
+        write(WRITE_WP, WRITE_PROTECTION_MASK);
     }
     else
     {
