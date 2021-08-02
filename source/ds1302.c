@@ -94,7 +94,27 @@ static const DS1302_range_t ranges[7] PROGMEM =
     [DS1302_YEAR]       = { .min = 0u, .max = 99u }
 };
 
-static bool is_type_valid(uint8_t type)
+static inline bool is_leap_year(uint8_t year)
+{
+    if((year % 4u) != 0u)
+    {
+        return false;
+    }
+    else if((year % 100u) != 0u)
+    {
+        return true;
+    }
+    else if((year % 400u) != 0u)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+static bool is_get_range_type_valid(uint8_t type)
 {
     switch(type)
     {
@@ -311,25 +331,40 @@ uint8_t DS1302_get_hours(void)
 
 uint8_t DS1302_get_range_minimum(uint8_t type)
 {
-    if(is_type_valid(type))
-    {
-        return pgm_read_byte(&ranges[type].min);
-    }
-    else
-    {
-        return 0u;
-    }
+    ASSERT(is_get_range_type_valid(type));
+    return pgm_read_byte(&ranges[type].min);
 }
 
 uint8_t DS1302_get_range_maximum(uint8_t type)
 {
-    if(is_type_valid(type))
+    ASSERT(is_get_range_type_valid(type) && (type != DS1302_DATE));
+    return pgm_read_byte(&ranges[type].max);
+}
+
+uint8_t DS1302_get_date_range_maximum(uint8_t year, uint8_t month)
+{
+    const bool is_leap = is_leap_year(year);
+
+    switch(month)
     {
-        return pgm_read_byte(&ranges[type].max);
-    }
-    else
-    {
-        return 0u;
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+            return 31u;
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            return 30u;
+        case 2:
+            return (is_leap ? 29u : 28u);
+        default:
+            ASSERT(false);
+            return 0u;
     }
 }
 
