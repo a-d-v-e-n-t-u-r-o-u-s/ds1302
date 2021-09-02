@@ -83,11 +83,12 @@ typedef struct
     uint8_t max;
 } DS1302_range_t;
 
-static const DS1302_range_t ranges[7] PROGMEM =
+static const DS1302_range_t ranges[8] PROGMEM =
 {
     [DS1302_SECONDS]    = { .min = 0u, .max = 59u },
     [DS1302_MINUTES]    = { .min = 0u, .max = 59u },
     [DS1302_HOURS]      = { .min = 0u, .max = 23u },
+    [DS1302_HOURS_12H]  = { .min = 1u, .max = 12u },
     [DS1302_WEEKDAY]    = { .min = 1u, .max = 7u  },
     [DS1302_DATE]       = { .min = 1u, .max = 31u },
     [DS1302_MONTH]      = { .min = 1u, .max = 12u },
@@ -121,6 +122,7 @@ static bool is_get_range_type_valid(uint8_t type)
         case DS1302_SECONDS:
         case DS1302_MINUTES:
         case DS1302_HOURS:
+        case DS1302_HOURS_12H:
         case DS1302_WEEKDAY:
         case DS1302_DATE:
         case DS1302_MONTH:

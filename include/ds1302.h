@@ -38,10 +38,11 @@
 #define DS1302_SECONDS          (0u)
 #define DS1302_MINUTES          (1u)
 #define DS1302_HOURS            (2u)
-#define DS1302_WEEKDAY          (3u)
-#define DS1302_DATE             (4u)
-#define DS1302_MONTH            (5u)
-#define DS1302_YEAR             (6u)
+#define DS1302_HOURS_12H        (3u)
+#define DS1302_WEEKDAY          (4u)
+#define DS1302_DATE             (5u)
+#define DS1302_MONTH            (6u)
+#define DS1302_YEAR             (7u)
 
 typedef struct
 {
