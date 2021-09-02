@@ -65,6 +65,7 @@
 #define OTHER_UNIT_MASK         (0x0Fu)
 
 #define SEC_MIN_TENS_MASK       (0x70u)
+#define HOURS_24H_TENS_MASK     (0x30U)
 #define DATE_TENS_MASK          (0x30u)
 #define MONTH_TENS_MASK         (0x10u)
 #define YEAR_TENS_MASK          (0xF0u)
@@ -162,7 +163,8 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
             return ((((val / TENS_FACTOR) << TENS_SHIFT) & SEC_MIN_TENS_MASK) |
                     (val % TENS_FACTOR));
         case DS1302_HOURS_24H:
-            return (val & HOURS_UNIT_MASK);
+            return (((val / TENS_FACTOR) << TENS_SHIFT) & HOURS_24H_TENS_MASK) |
+                    (val % TENS_FACTOR);
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK);
         case DS1302_DATE:
@@ -180,7 +182,7 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
 
     }
 
-    return 0;
+    return 0U;
 }
 
 static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
@@ -192,7 +194,8 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
             return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
                 ((val & SEC_MIN_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         case DS1302_HOURS_24H:
-            return (val & HOURS_UNIT_MASK)*UNIT_FACTOR;;
+            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
+                ((val & HOURS_24H_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK)*UNIT_FACTOR;
         case DS1302_DATE:
