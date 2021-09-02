@@ -77,6 +77,26 @@
 #define CLK_DELAY               (2u)
 #define MSB_SHIFT               (7u)
 
+#define JANUARY                 (1U)
+#define FEBRUARY                (2U)
+#define MARCH                   (3U)
+#define APRIL                   (4U)
+#define MAY                     (5U)
+#define JUNE                    (6U)
+#define JULY                    (7U)
+#define AUGUST                  (8U)
+#define SEPTEMBER               (9U)
+#define OCTOBER                 (10U)
+#define NOVEMBER                (11U)
+#define DECEMBER                (12U)
+
+#define DAYS_28                 (28U)
+#define DAYS_29                 (29U)
+#define DAYS_30                 (30U)
+#define DAYS_31                 (31U)
+
+#define CENTURY                 (100U)
+
 typedef struct
 {
     uint8_t min;
@@ -85,34 +105,34 @@ typedef struct
 
 static const DS1302_range_t ranges[8] PROGMEM =
 {
-    [DS1302_SECONDS]    = { .min = 0u, .max = 59u },
-    [DS1302_MINUTES]    = { .min = 0u, .max = 59u },
-    [DS1302_HOURS]      = { .min = 0u, .max = 23u },
-    [DS1302_HOURS_12H]  = { .min = 1u, .max = 12u },
-    [DS1302_WEEKDAY]    = { .min = 1u, .max = 7u  },
-    [DS1302_DATE]       = { .min = 1u, .max = 31u },
-    [DS1302_MONTH]      = { .min = 1u, .max = 12u },
-    [DS1302_YEAR]       = { .min = 0u, .max = 99u }
+    [DS1302_SECONDS]    = { .min = 0U, .max = 59U },
+    [DS1302_MINUTES]    = { .min = 0U, .max = 59U },
+    [DS1302_HOURS]      = { .min = 0U, .max = 23U },
+    [DS1302_HOURS_12H]  = { .min = 1U, .max = 12U },
+    [DS1302_WEEKDAY]    = { .min = 1U, .max = 7U  },
+    [DS1302_DATE]       = { .min = 1U, .max = 31U },
+    [DS1302_MONTH]      = { .min = 1U, .max = 12U },
+    [DS1302_YEAR]       = { .min = 0U, .max = 99U }
 };
 
 static inline bool is_leap_year(uint8_t year)
 {
-    if((year % 4u) != 0u)
+    if((year % 4U) != 0U)
     {
         return false;
     }
-    else if((year % 100u) != 0u)
+
+    if((year % CENTURY) != 0U)
     {
         return true;
     }
-    else if((year % 400u) != 0u)
+
+    if((year % (4U*CENTURY)) != 0U)
     {
         return false;
     }
-    else
-    {
-        return true;
-    }
+
+    return true;
 }
 
 static bool is_get_range_type_valid(uint8_t type)
@@ -210,7 +230,7 @@ static void write_byte(uint8_t data)
     uint8_t tmp = data;
     GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_OUTPUT_PUSH_PULL);
 
-    for(uint8_t i = 0u; i < CHAR_BIT; i++)
+    for(uint8_t i = 0U; i < CHAR_BIT; i++)
     {
         if((tmp & 0x01) != 0U)
         {
@@ -236,7 +256,7 @@ static uint8_t read_byte(void)
 
     GPIO_config_pin(GPIO_CHANNEL_RTC_IO, GPIO_INPUT_FLOATING);
 
-    for(uint8_t i = 0U; i < 8U; i++)
+    for(uint8_t i = 0U; i < CHAR_BIT; i++)
     {
         GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, true);
         _delay_us(CLK_DELAY);
@@ -269,7 +289,7 @@ static void write(uint8_t reg, uint8_t value)
 
 static uint8_t read(uint8_t reg)
 {
-    uint8_t ret = 0u;
+    uint8_t ret = 0U;
     start(reg);
     ret = read_byte();
     stop();
@@ -349,24 +369,24 @@ uint8_t DS1302_get_date_range_maximum(uint8_t year, uint8_t month)
 
     switch(month)
     {
-        case 1:
-        case 3:
-        case 5:
-        case 7:
-        case 8:
-        case 10:
-        case 12:
-            return 31u;
-        case 4:
-        case 6:
-        case 9:
-        case 11:
-            return 30u;
-        case 2:
-            return (is_leap ? 29u : 28u);
+        case JANUARY:
+        case MARCH:
+        case MAY:
+        case JULY:
+        case AUGUST:
+        case OCTOBER:
+        case DECEMBER:
+            return DAYS_31;
+        case APRIL:
+        case JUNE:
+        case SEPTEMBER:
+        case NOVEMBER:
+            return DAYS_30;
+        case FEBRUARY:
+            return (is_leap ? DAYS_29 : DAYS_28);
         default:
             ASSERT(false);
-            return 0u;
+            return 0U;
     }
 }
 
