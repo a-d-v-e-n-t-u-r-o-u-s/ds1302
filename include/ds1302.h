@@ -37,7 +37,7 @@
 
 #define DS1302_SECONDS          (0u)
 #define DS1302_MINUTES          (1u)
-#define DS1302_HOURS            (2u)
+#define DS1302_HOURS_24H        (2u)
 #define DS1302_HOURS_12H        (3u)
 #define DS1302_WEEKDAY          (4u)
 #define DS1302_DATE             (5u)

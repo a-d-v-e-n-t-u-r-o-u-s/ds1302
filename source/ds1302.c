@@ -107,7 +107,7 @@ static const DS1302_range_t ranges[8] PROGMEM =
 {
     [DS1302_SECONDS]    = { .min = 0U, .max = 59U },
     [DS1302_MINUTES]    = { .min = 0U, .max = 59U },
-    [DS1302_HOURS]      = { .min = 0U, .max = 23U },
+    [DS1302_HOURS_24H]  = { .min = 0U, .max = 23U },
     [DS1302_HOURS_12H]  = { .min = 1U, .max = 12U },
     [DS1302_WEEKDAY]    = { .min = 1U, .max = 7U  },
     [DS1302_DATE]       = { .min = 1U, .max = 31U },
@@ -141,7 +141,7 @@ static bool is_get_range_type_valid(uint8_t type)
     {
         case DS1302_SECONDS:
         case DS1302_MINUTES:
-        case DS1302_HOURS:
+        case DS1302_HOURS_24H:
         case DS1302_HOURS_12H:
         case DS1302_WEEKDAY:
         case DS1302_DATE:
@@ -161,7 +161,7 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
         case DS1302_MINUTES:
             return ((((val / TENS_FACTOR) << TENS_SHIFT) & SEC_MIN_TENS_MASK) |
                     (val % TENS_FACTOR));
-        case DS1302_HOURS:
+        case DS1302_HOURS_24H:
             return (val & HOURS_UNIT_MASK);
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK);
@@ -191,7 +191,7 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
         case DS1302_MINUTES:
             return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
                 ((val & SEC_MIN_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
-        case DS1302_HOURS:
+        case DS1302_HOURS_24H:
             return (val & HOURS_UNIT_MASK)*UNIT_FACTOR;;
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK)*UNIT_FACTOR;
@@ -304,7 +304,7 @@ void DS1302_get(DS1302_datetime_t *config)
         config->month = get_value_to_load(DS1302_MONTH, read(READ_MONTH));
         config->date = get_value_to_load(DS1302_DATE, read(READ_DATE));
         config->weekday = get_value_to_load(DS1302_WEEKDAY, read(READ_WEEKDAY));
-        config->hours = get_value_to_load(DS1302_HOURS, read(READ_HOURS));
+        config->hours = get_value_to_load(DS1302_HOURS_24H, read(READ_HOURS));
         config->min = get_value_to_load(DS1302_MINUTES, read(READ_MINUTES));
         config->secs = get_value_to_load(DS1302_SECONDS, read(READ_SECONDS));
     }
@@ -318,7 +318,7 @@ void DS1302_set(const DS1302_datetime_t *config)
         write(WRITE_MONTH, get_value_to_store(DS1302_MONTH, config->month));
         write(WRITE_DATE, get_value_to_store(DS1302_DATE, config->date));
         write(WRITE_WEEKDAY, get_value_to_store(DS1302_WEEKDAY, config->weekday));
-        write(WRITE_HOURS, get_value_to_store(DS1302_HOURS, config->hours));
+        write(WRITE_HOURS, get_value_to_store(DS1302_HOURS_24H, config->hours));
         write(WRITE_MINUTES, get_value_to_store(DS1302_MINUTES, config->min));
         write(WRITE_SECONDS, get_value_to_store(DS1302_SECONDS, config->secs));
     }
@@ -346,7 +346,7 @@ uint8_t DS1302_get_hours(void)
 {
     uint8_t ret = read(READ_HOURS);
 
-    ret = get_value_to_load(DS1302_HOURS, ret);
+    ret = get_value_to_load(DS1302_HOURS_24H, ret);
 
     return ret;
 }
