@@ -43,6 +43,8 @@
 #define DS1302_DATE             (5u)
 #define DS1302_MONTH            (6u)
 #define DS1302_YEAR             (7u)
+#define DS1302_FORMAT           (8u)
+#define DS1302_AM_PM            (9U)
 
 typedef struct
 {
@@ -53,12 +55,13 @@ typedef struct
     uint8_t date;
     uint8_t month;
     uint8_t year;
-    uint8_t format;
+    bool is_12h_mode;
+    bool is_pm;
 } DS1302_datetime_t;
 
 uint8_t DS1302_get_seconds(void);
 uint8_t DS1302_get_minutes(void);
-uint8_t DS1302_get_hours(void);
+uint8_t DS1302_get_hours(bool is_12h_mode);
 uint8_t DS1302_get_range_minimum(uint8_t type);
 uint8_t DS1302_get_range_maximum(uint8_t type);
 uint8_t DS1302_get_date_range_maximum(uint8_t year, uint8_t month);
