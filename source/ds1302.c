@@ -153,8 +153,6 @@ static bool is_get_range_type_valid(uint8_t type)
         case DS1302_MONTH:
         case DS1302_YEAR:
             return true;
-        case DS1302_FORMAT:
-        case DS1302_AM_PM:
         default:
             return false;
     }
@@ -175,9 +173,9 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
             return (((val / TENS_FACTOR) << TENS_SHIFT) & HOURS_12H_TENS_MASK) |
                     (val % TENS_FACTOR);
         case DS1302_AM_PM:
-            return (val << AM_PM_SHIFT);
+            return (uint8_t)(val << AM_PM_SHIFT);
         case DS1302_FORMAT:
-            return (val << FORMAT_SHIFT);
+            return (uint8_t)(val << FORMAT_SHIFT);
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK);
         case DS1302_DATE:
