@@ -120,6 +120,14 @@ static const DS1302_range_t ranges[8] PROGMEM =
     [DS1302_YEAR]       = { .min = 0U, .max = 99U },
 };
 
+/*!
+ * \brief Checks if year is a leap year
+ *
+ * \param year year to be check for leapness
+ *
+ * \retval true year is leap year
+ * \retval false year is normal year
+ */
 static inline bool is_leap_year(uint8_t year)
 {
     if((year % 4U) != 0U)
@@ -140,6 +148,14 @@ static inline bool is_leap_year(uint8_t year)
     return true;
 }
 
+/*!
+ * \brief Checks data type is valid
+ *
+ * \param type type to be checked
+ *
+ * \retval true type is valid
+ * \retval false type is invalid
+ */
 static bool is_get_range_type_valid(uint8_t type)
 {
     switch(type)
@@ -158,6 +174,15 @@ static bool is_get_range_type_valid(uint8_t type)
     }
 }
 
+/*!
+ * \brief Converts user data into data to be stored in DS1302 registers, in some cases
+ * converting into BCD code is involved.
+ *
+ * \param entry data type, which value is going to be converted
+ * \param val value of given data type, which is going to be converted
+ *
+ * \returns Converted value
+ */
 static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
 {
     switch(entry)
@@ -196,6 +221,14 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
     return 0U;
 }
 
+/*!
+ * \brief Converts data stored in DS1302 registers data into user data.
+ *
+ * \param entry data type, which value is going to be converted
+ * \param val value of given data type, which is going to be converted
+ *
+ * \returns Converted value
+ */
 static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
 {
     switch(entry)
@@ -246,6 +279,12 @@ static inline void reset(void)
     GPIO_write_pin(GPIO_CHANNEL_RTC_CE, true);
 }
 
+/*!
+ * \brief Writes byte of data onto 3-Wire interface
+ *
+ * \param data data to be writen
+ *
+ */
 static void write_byte(uint8_t data)
 {
     uint8_t tmp = data;
@@ -271,6 +310,12 @@ static void write_byte(uint8_t data)
     }
 }
 
+/*!
+ * \brief Reads byte of data from 3-Wire interface
+ *
+ * \param data data to be read
+ *
+ */
 static uint8_t read_byte(void)
 {
     uint8_t ret = 0;
