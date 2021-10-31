@@ -33,7 +33,15 @@
 #include <string.h>
 #include <limits.h>
 #include "debug.h"
+#include "common.h"
 
+/*!
+ *
+ * \addtogroup ds1302_registers
+ * \ingroup ds1302
+ * \brief DS1302 registers combined with R/W bit
+ */
+/*@{*/
 #define READ_SECONDS            (0x81)
 #define WRITE_SECONDS           (0x80)
 
@@ -58,7 +66,15 @@
 
 #define READ_WP                 (0x8F)
 #define WRITE_WP                (0x8E)
+/*@}*/
 
+/*!
+ *
+ * \addtogroup ds1302_masks
+ * \ingroup ds1302
+ * \brief DS1302 masks and shifts
+ */
+/*@{*/
 #define WRITE_PROTECTION_MASK   (0x80u)
 #define HOURS_UNIT_MASK         (0x1Fu)
 #define WEEKDAY_UNIT_MASK       (0x07u)
@@ -81,31 +97,15 @@
 
 #define CLK_DELAY               (2u)
 #define MSB_SHIFT               (7u)
+/*@}*/
 
-#define JANUARY                 (1U)
-#define FEBRUARY                (2U)
-#define MARCH                   (3U)
-#define APRIL                   (4U)
-#define MAY                     (5U)
-#define JUNE                    (6U)
-#define JULY                    (7U)
-#define AUGUST                  (8U)
-#define SEPTEMBER               (9U)
-#define OCTOBER                 (10U)
-#define NOVEMBER                (11U)
-#define DECEMBER                (12U)
-
-#define DAYS_28                 (28U)
-#define DAYS_29                 (29U)
-#define DAYS_30                 (30U)
-#define DAYS_31                 (31U)
-
-#define CENTURY                 (100U)
-
+/*!
+ * \brief DS1302 data type range
+ */
 typedef struct
 {
-    uint8_t min;
-    uint8_t max;
+    uint8_t min; /*!< Minimum */
+    uint8_t max; /*!< Maximum */
 } DS1302_range_t;
 
 static const DS1302_range_t ranges[8] PROGMEM =
@@ -266,13 +266,19 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
     return 0;
 }
 
+/*!
+ * \brief Stops single register read/write by deasserting CE and CLK
+ */
 static inline void stop(void)
 {
     GPIO_write_pin(GPIO_CHANNEL_RTC_CE, false);
     GPIO_write_pin(GPIO_CHANNEL_RTC_CLK, false);
 }
 
-static inline void reset(void)
+/*!
+ * \brief Starts single register read/write by asserting CE
+ */
+static inline void start(void)
 {
     stop();
 
@@ -340,24 +346,32 @@ static uint8_t read_byte(void)
     return ret;
 }
 
-static void start(uint8_t type)
-{
-    reset();
-
-    write_byte(type);
-}
-
+/*!
+ * \brief Write single register
+ *
+ * \param reg register to be written to
+ * \param value value to be written
+ *
+ */
 static void write(uint8_t reg, uint8_t value)
 {
-    start(reg);
+    start();
+    write_byte(reg);
     write_byte(value);
     stop();
 }
 
+/*!
+ * \brief Read single register
+ *
+ * \param reg register to be read from
+ *
+ */
 static uint8_t read(uint8_t reg)
 {
     uint8_t ret = 0U;
-    start(reg);
+    start();
+    write_byte(reg);
     ret = read_byte();
     stop();
     return ret;
