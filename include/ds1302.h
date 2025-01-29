@@ -55,23 +55,44 @@
 /*@}*/
 
 /*!
+ * \struct DS1302_datetime_t
+ *
  * \brief Aggregate of DS1302 data types \ref ds1302_data_types
+ *
+ * \var DS1302_datetime_t::secs
+ *      Seconds
+ * \var DS1302_datetime_t::min
+ *      Minutes
+ * \var DS1302_datetime_t::hours
+ *      Hours
+ * \var DS1302_datetime_t::weekday
+ *      Day of the week
+ * \var DS1302_datetime_t::date
+ *      Day of the month
+ * \var DS1302_datetime_t::month
+ *      Month
+ * \var DS1302_datetime_t::year
+ *      Year
+ * \var DS1302_datetime_t::is_12h_mode
+ *      24h/12h mode
+ * \var DS1302_datetime_t::is_pm
+ *      AM/PM in case 12h mode
  */
 typedef struct
 {
-    uint8_t secs; /*!< Seconds */
-    uint8_t min; /*!< Minutes */
-    uint8_t hours; /*!< Hours */
-    uint8_t weekday; /*!< Day of the week */
-    uint8_t date; /*!< Day of the month */
-    uint8_t month; /*!< Month */
-    uint8_t year; /*!< Year */
-    bool is_12h_mode; /*!< 24h/12h mode */
-    bool is_pm; /*!< AM/PM in case 12h mode*/
+    uint8_t secs;
+    uint8_t min;
+    uint8_t hours;
+    uint8_t weekday;
+    uint8_t date;
+    uint8_t month;
+    uint8_t year;
+    bool is_12h_mode;
+    bool is_pm;
 } DS1302_datetime_t;
 
 /*!
- * \todo (DB) refactor below getters into one function and rename it into something like 
+ * \todo (DB) refactor below getters into one function and rename it into something like
  * DS1302_load_data(type)
  * */
 

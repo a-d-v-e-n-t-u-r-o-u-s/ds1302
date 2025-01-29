@@ -97,15 +97,24 @@
 
 #define CLK_DELAY               (2u)
 #define MSB_SHIFT               (7u)
+
+#define LEAP_YEAR_PERIOD        (4U)
 /*@}*/
 
 /*!
+ * \struct DS1302_range_t
+ *
  * \brief DS1302 data type range
+ *
+ * \var DS1302_range_t::min
+ *      Minimum
+ * \var DS1302_range_t::max
+ *      Maximum
  */
 typedef struct
 {
-    uint8_t min; /*!< Minimum */
-    uint8_t max; /*!< Maximum */
+    uint8_t min;
+    uint8_t max;
 } DS1302_range_t;
 
 static const DS1302_range_t ranges[8] PROGMEM =
@@ -130,22 +139,26 @@ static const DS1302_range_t ranges[8] PROGMEM =
  */
 static inline bool is_leap_year(uint8_t year)
 {
-    if((year % 4U) != 0U)
+    bool ret = false;
+
+    if((year % LEAP_YEAR_PERIOD) != 0U)
     {
-        return false;
+        ret = false;
+    }
+    else if((year % CENTURY) != 0U)
+    {
+        ret = true;
+    }
+    else if((year % (LEAP_YEAR_PERIOD*CENTURY)) != 0U)
+    {
+        ret = false;
+    }
+    else
+    {
+        ret = true;
     }
 
-    if((year % CENTURY) != 0U)
-    {
-        return true;
-    }
-
-    if((year % (4U*CENTURY)) != 0U)
-    {
-        return false;
-    }
-
-    return true;
+    return ret;
 }
 
 /*!
@@ -214,11 +227,7 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
                 (val % TENS_FACTOR);
         default:
             ASSERT(false);
-            break;
-
     }
-
-    return 0U;
 }
 
 /*!
@@ -235,35 +244,32 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
     {
         case DS1302_SECONDS:
         case DS1302_MINUTES:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & SEC_MIN_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & SEC_MIN_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         case DS1302_FORMAT:
             return (val >> FORMAT_SHIFT);
         case DS1302_AM_PM:
             return ((val & AM_PM_MASK) >> AM_PM_SHIFT);
         case DS1302_HOURS_24H:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & HOURS_24H_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & HOURS_24H_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         case DS1302_HOURS_12H:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & HOURS_12H_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & HOURS_12H_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         case DS1302_WEEKDAY:
             return (val & WEEKDAY_UNIT_MASK)*UNIT_FACTOR;
         case DS1302_DATE:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & DATE_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & DATE_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         case DS1302_MONTH:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & MONTH_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & MONTH_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         case DS1302_YEAR:
-            return (val & OTHER_UNIT_MASK)*UNIT_FACTOR +
-                ((val & YEAR_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR;
+            return ((val & OTHER_UNIT_MASK)*UNIT_FACTOR) +
+                (((val & YEAR_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         default:
             ASSERT(false);
-            break;
     }
-
-    return 0;
 }
 
 /*!
@@ -471,7 +477,7 @@ uint8_t DS1302_get_range_minimum(uint8_t type)
 
 uint8_t DS1302_get_range_maximum(uint8_t type)
 {
-    if(!is_get_range_type_valid(type) || (type == DS1302_DATE))
+    if((!is_get_range_type_valid(type)) || (type == DS1302_DATE))
     {
         ASSERT(false);
     }
@@ -502,7 +508,6 @@ uint8_t DS1302_get_date_range_maximum(uint8_t year, uint8_t month)
             return (is_leap ? DAYS_29 : DAYS_28);
         default:
             ASSERT(false);
-            return 0U;
     }
 }
 
