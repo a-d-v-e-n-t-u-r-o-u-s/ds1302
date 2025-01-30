@@ -227,7 +227,10 @@ static uint8_t get_value_to_store(uint8_t entry, uint8_t val)
                 (val % TENS_FACTOR);
         default:
             ASSERT(false);
+            break;
     }
+
+    return 0U;
 }
 
 /*!
@@ -269,7 +272,10 @@ static uint8_t get_value_to_load(uint8_t entry, uint8_t val)
                 (((val & YEAR_TENS_MASK) >> TENS_SHIFT) * TENS_FACTOR);
         default:
             ASSERT(false);
+            break;
     }
+
+    return 0U;
 }
 
 /*!
@@ -508,7 +514,10 @@ uint8_t DS1302_get_date_range_maximum(uint8_t year, uint8_t month)
             return (is_leap ? DAYS_29 : DAYS_28);
         default:
             ASSERT(false);
+            break;
     }
+
+    return 0U;
 }
 
 void DS1302_set_write_protection(bool val)
